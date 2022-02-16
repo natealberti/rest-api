@@ -8,6 +8,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.MongoTemplate;
 
 @SpringBootApplication
 public class DemoApplication {
@@ -17,26 +21,52 @@ public class DemoApplication {
 	}
 
 	@Bean
-	CommandLineRunner runner(StudentRepository repository) {
+	CommandLineRunner runner(StudentRepository repository, MongoTemplate mongoTemplate) {
 		return args -> {
-			Address address = new Address(
-				"England",
-				"London",
-				"NE9"
-			);
+
+			String email = "jahmed@gmail.com";
+
 			Student student = new Student(
 				"jamila",
 				"ahmed",
-				"jahmed@gmail.com",
+				email,
 				Gender.FEMALE,
-				address,
+				"London, England",
 				List.of("Compsci"),
 				BigDecimal.TEN,
 				LocalDateTime.now()
 			);
 
+			StudentController service = new StudentController(repository);
+
+			repository.findStudentByEmail(email)
+			.ifPresentOrElse(s -> {
+				System.out.println(s + " already exists");
+			}, () -> {System.out.println("inserting student " + student);
 			repository.insert(student);
+		});
+
 		};
+	}
+
+	private void usingMongoTemplateAndQuery(StudentRepository repository,
+	 MongoTemplate mongoTemplate,
+	  String email,
+	   Student student) {
+		Query query = new Query();
+			query.addCriteria(Criteria.where("email").is(email));
+			List<Student> students = mongoTemplate.find(query, Student.class);
+			if(students.size() > 1) {		//.find(query, Student.class)
+				throw new IllegalStateException("found multiple students with email:" + email);
+			}
+
+			if(students.isEmpty()) {
+				System.out.println("inserting student " + student);
+				repository.insert(student);
+			}
+			else {
+				System.out.println("student already exists");
+			}
 	}
 
 }

@@ -6,9 +6,14 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class Address {
-    public Address(String string, String string2, String string3) {
-    }
+    
     private String country;
     private String postCode;
     private String city;
+
+    public Address(String country, String city, String postcode) {
+        this.country = country;
+        this.city = city;
+        this.postCode = postcode;
+    }
 }

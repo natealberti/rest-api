@@ -6,6 +6,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.Data;
@@ -17,9 +18,10 @@ public class Student {
     private String id;
     private String firstName;
     private String lastName;
+    @Indexed(unique =true)
     private String email;
     private Gender gender;
-    private Address address;
+    private String address;
     private List<String> favoriteSubjects;
     private BigDecimal totalSpentOnBooks;
     private LocalDateTime created;
@@ -28,7 +30,7 @@ public class Student {
     String lastName,
     String email,
     Gender gender,
-    Address address,
+    String address,
     List<String> favoriteSubjects,
     BigDecimal totalSpentOnBooks,
     LocalDateTime created) {
